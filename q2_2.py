@@ -8,34 +8,72 @@ import data
 import numpy as np
 # Import pyplot - plt.imshow is useful!
 import matplotlib.pyplot as plt
+import data
 
 def compute_mean_mles(train_data, train_labels):
     '''
-    Compute the mean estimate for each digit class
+    Compute the mean estimate for each digit class => computing mu matrix, 10x64
 
     Should return a numpy array of size (10,64)
     The ith row will correspond to the mean estimate for digit class i
     '''
-    means = np.zeros((10, 64))
+
+    # lec_9 multivariate gaussian MLE
+    means = []
+    # digit_k for each digit k
+    for i in range(10):
+        # k_
+        k_digits = data.get_digits_by_label(train_data, train_labels, i)
+        k_count = k_digits.shape[0]
+        k_mean = np.sum(k_digits, axis=0)/k_count
+        means.append(k_mean)
+
+    means = np.concatenate(means)
+    # 10 x 64 =>
     # Compute means
     return means
 
 def compute_sigma_mles(train_data, train_labels):
     '''
-    Compute the covariance estimate for each digit class
+    Compute the covariance estimate for each digit class => 10x64x64
 
     Should return a three dimensional numpy array of shape (10, 64, 64)
     consisting of a covariance matrix for each digit class 
     '''
-    covariances = np.zeros((10, 64, 64))
+    covariance_matrix = []
+    means = compute_mean_mles(train_data, train_labels)
+    for i in range(10):
+        k_digits = data.get_digits_by_label(train_data, train_labels, i)
+        k_count = k_digits.shape[0]
+        k_mean = means[i]
+        d = (k_digits - k_mean) # 700x 64
+        covariance = np.dot(np.transpose(d), d) / k_count
+        # debug --> 64x 700 x 700 x 64 ==>    64 x 64
+        # print("covariance shape is: ", covariance.shape)
+        covariance_matrix.append(covariance)
+
+    covariance_matrix = np.concatenate(covariance_matrix)
+    # covariances = np.zeros((10, 64, 64))
     # Compute covariances
-    return covariances
+    return covariance_matrix
 
 def plot_cov_diagonal(covariances):
+    cov_diag_set = []
     # Plot the diagonal of each covariance matrix side by side
+    i_matrix = np.identity(64, dtype=float) * 0.01
+
     for i in range(10):
-        cov_diag = np.diag(covariances[i])
-        # ...
+        cov_diag = np.diag(covariances[i] + i_matrix)
+        # shape of 64?
+        log_cov_diag = np.log(cov_diag).reshape(8, 8)
+        cov_diag_set.append(log_cov_diag)
+
+    all_concat = np.concatenate(cov_diag_set, 1)
+    # side by side?
+    plt.imshow(all_concat, cmap='gray')
+    plt.title('10 cov_diag side by side graph')
+    plt.show()
+
 
 def generative_likelihood(digits, means, covariances):
     '''
@@ -55,6 +93,9 @@ def conditional_likelihood(digits, means, covariances):
     This should be a numpy array of shape (n, 10)
     Where n is the number of datapoints and 10 corresponds to each digit class
     '''
+    for i in range(10):
+        pass
+
     return None
 
 def avg_conditional_likelihood(digits, labels, means, covariances):
@@ -86,6 +127,7 @@ def main():
     covariances = compute_sigma_mles(train_data, train_labels)
 
     # Evaluation
+    plot_cov_diagonal(covariances=covariances)
 
 if __name__ == '__main__':
     main()
