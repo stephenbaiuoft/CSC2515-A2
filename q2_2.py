@@ -42,26 +42,36 @@ def compute_sigma_mles(train_data, train_labels):
     Should return a three dimensional numpy array of shape (10, 64, 64)
     consisting of a covariance matrix for each digit class 
     '''
-    covariance_matrix = []
+
+    # issue: covariance is wrong: matrix multiplication is not right
+    covariance_matrix_set = []
     i_matrix = np.identity(64, dtype=float) * 0.01
     means = compute_mean_mles(train_data, train_labels)
     for i in range(10):
         k_digits = data.get_digits_by_label(train_data, train_labels, i)
         k_count = k_digits.shape[0]
         k_mean = means[i]
-        d = (k_digits - k_mean) # 700x 64
-        covariance = np.dot(np.transpose(d), d) / k_count
-        # add numeric stability
-        covariance_stable = i_matrix + covariance
-        # debug --> 64x 700 x 700 x 64 ==>    64 x 64
-        # print("covariance shape is: ", covariance.shape)
-        covariance_matrix.append(covariance_stable)
+        d_set = (k_digits - k_mean)
 
-    all_stack = np.stack(covariance_matrix, axis=0)
+        covariance_matrix_i_sum = i_matrix
+        for d in d_set:
+            # d should be (64,) ==> to (64,1)
+            d = d.reshape(64, 1)
+            # covariance_d: (64,64)
+            covariance_d = np.dot(d, np.transpose(d))
+            # print("covariance_d shape is: ", covariance_d.shape)
+            # adding over all data points
+            covariance_matrix_i_sum += covariance_d
+        covariance_matrix_i = covariance_matrix_i_sum / k_count
+        # add to set
+        covariance_matrix_set.append(covariance_matrix_i)
+
+    all_stack = np.stack(covariance_matrix_set, axis=0)
     # covariances = np.zeros((10, 64, 64))
     print("covariance_matrix shape is: ", all_stack.shape)
     # Compute covariances
     return all_stack
+
 
 def plot_cov_diagonal(covariances):
     cov_diag_set = []
@@ -206,8 +216,8 @@ def main():
     train_data, train_labels, test_data, test_labels = data.load_all_data('data')
 
     # Fit the model
-    # means = compute_mean_mles(train_data, train_labels)
-    # covariances = compute_sigma_mles(train_data, train_labels)
+    means = compute_mean_mles(train_data, train_labels)
+    covariances = compute_sigma_mles(train_data, train_labels)
 
     # Evaluation
     # part_2_2_1(covariances)
