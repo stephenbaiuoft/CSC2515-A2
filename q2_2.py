@@ -34,6 +34,7 @@ def compute_mean_mles(train_data, train_labels):
     # Compute means
     return means
 
+
 def compute_sigma_mles(train_data, train_labels):
     '''
     Compute the covariance estimate for each digit class => 10x64x64
@@ -42,6 +43,7 @@ def compute_sigma_mles(train_data, train_labels):
     consisting of a covariance matrix for each digit class 
     '''
     covariance_matrix = []
+    i_matrix = np.identity(64, dtype=float) * 0.01
     means = compute_mean_mles(train_data, train_labels)
     for i in range(10):
         k_digits = data.get_digits_by_label(train_data, train_labels, i)
@@ -49,9 +51,11 @@ def compute_sigma_mles(train_data, train_labels):
         k_mean = means[i]
         d = (k_digits - k_mean) # 700x 64
         covariance = np.dot(np.transpose(d), d) / k_count
+        # add numeric stability
+        covariance_stable = i_matrix + covariance
         # debug --> 64x 700 x 700 x 64 ==>    64 x 64
         # print("covariance shape is: ", covariance.shape)
-        covariance_matrix.append(covariance)
+        covariance_matrix.append(covariance_stable)
 
     all_stack = np.stack(covariance_matrix, axis=0)
     # covariances = np.zeros((10, 64, 64))
@@ -62,10 +66,9 @@ def compute_sigma_mles(train_data, train_labels):
 def plot_cov_diagonal(covariances):
     cov_diag_set = []
     # Plot the diagonal of each covariance matrix side by side
-    i_matrix = np.identity(64, dtype=float) * 0.01
 
     for i in range(10):
-        cov_diag = np.diag(covariances[i] + i_matrix)
+        cov_diag = np.diag(covariances[i])
         # shape of 64?
         log_cov_diag = np.log(cov_diag).reshape(8, 8)
         cov_diag_set.append(log_cov_diag)
