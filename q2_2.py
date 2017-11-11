@@ -88,6 +88,19 @@ def generative_likelihood(digits, means, covariances):
 
     Should return an n x 10 numpy array
     '''
+    likelihood_set = generative_likelihood_probability(digits, means, covariances)
+    # return the log-likelihood now
+    return np.log(likelihood_set)
+
+
+def generative_likelihood_probability(digits, means, covariances):
+    '''
+    digits: n x 64   | 10 comes from the set of labels
+    Compute the generative log-likelihood:
+        log p(x|y,mu,Sigma)
+
+    Should return an n x 10 numpy array in terms of probability
+    '''
     # for storing digit likelihood 0 - 9
     likelihood_set = []
     n = digits.shape[0]
@@ -100,16 +113,22 @@ def generative_likelihood(digits, means, covariances):
         n_by_n_matrix = np.dot(np.dot(digits_diff, cov_inv),
                                np.transpose(digits_diff))
         # shape (n,)
-        n_by_one = np.diag(n_by_n_matrix).reshape(n, 1)
+        n_by_one_tmp = np.diag(n_by_n_matrix)
+        n_by_one = n_by_one_tmp.reshape(n, 1)
 
-        likelihood_i = -5 * np.log(2*np.pi) - np.log(det)/2 \
-                       - 1/2 * n_by_one
-        likelihood_set.append(likelihood_i)
+        # d is 64!! # of x dimension!!!
+        term_1 = np.float_power(2*np.pi, -64/2)
+        term_2 = np.float_power(det, -0.5)
+        term_3 = np.exp(-0.5 * n_by_one)
+
+        p_i = term_1 * term_2 * term_3
+        likelihood_set.append(p_i)
 
     all_concat = np.concatenate(likelihood_set, axis=1)
     # should be shape of nx10
-    print("generative_likelihood shape: ", all_concat.shape)
+    print("generative_likelihood_probability shape: ", all_concat.shape)
     return all_concat
+
 
 def conditional_likelihood(digits, means, covariances):
     '''
@@ -120,11 +139,14 @@ def conditional_likelihood(digits, means, covariances):
     This should be a numpy array of shape (n, 10)
     Where n is the number of datapoints and 10 corresponds to each digit class
     '''
-    g_likelihood_set = generative_likelihood(digits, means, covariances)
+    g_likelihood_set = generative_likelihood_probability(digits, means, covariances)
     # for each class of y
     # n x 10, ==> summing over g_likelihood_set, axis = 1 (n x 10 -> n x 1)
     # keeping the dimension
-    return g_likelihood_set/np.sum(g_likelihood_set, axis=1, keepdims=True)
+    conditional_likelihood_probability =\
+        g_likelihood_set/np.sum(g_likelihood_set, axis=1, keepdims=True)
+    # return the log likelihood now
+    return np.log(conditional_likelihood_probability)
 
 
 def avg_conditional_likelihood(digits, labels, means, covariances):
@@ -135,12 +157,12 @@ def avg_conditional_likelihood(digits, labels, means, covariances):
 
     i.e. the average log likelihood that the model assigns to the correct class label
     """
-    cond_likelihood = conditional_likelihood(digits, means, covariances)
+    cond_log_likelihood = conditional_likelihood(digits, means, covariances)
     tot_probability = 0
     for i in range(10):
         # get conditional likelihood n x 10
         # of each i and sum them up
-        tot_probability += np.sum(cond_likelihood[labels == i])
+        tot_probability += np.sum(cond_log_likelihood[labels == i])
 
     # Compute as described above and return
     # over all digits
