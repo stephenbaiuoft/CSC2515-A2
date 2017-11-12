@@ -8,6 +8,7 @@ import data
 import numpy as np
 # Import pyplot - plt.imshow is useful!
 import matplotlib.pyplot as plt
+from sklearn.model_selection import KFold
 
 class KNearestNeighbor(object):
     '''
@@ -85,12 +86,56 @@ def part_2_1_1(knn, train_data, train_labels, test_data, test_labels):
     print("accuracy for Test with k = 1: {}, k = 15: {}".format(accuracy_test_1,
                                                                  accuracy_test_15))
 
+# find the optimal k
+def part_2_1_3(X, Y, test_data, test_labels):
+    # 1 - 15
+    k_max = 16
+    kf = KFold(n_splits=10)
+
+    k_cross_accuracy_set = []
+    for i in range(1, 16):
+        # compute cross validation error for and get the index?
+        cross_accuracy = 0.0
+        for train_index, test_index in kf.split(X):
+            x_train_set, x_test_set = X[train_index], X[test_index]
+            y_train_set, y_test_set = Y[train_index], Y[test_index]
+
+            knn = KNearestNeighbor(x_train_set, y_train_set)
+            test_accuracy = \
+                classification_accuracy(knn, i, x_test_set, y_test_set)
+
+            cross_accuracy += test_accuracy
+            cross_accuracy /= 10
+
+        # add to k_cross_accracy_Set
+        k_cross_accuracy_set.append(cross_accuracy)
+
+    # remember the one offset
+    print("k_cross_accuracy_set is:\n", k_cross_accuracy_set)
+    optimal_k = np.argmax(k_cross_accuracy_set) + 1
+    print("optimal_k is: ", optimal_k)
+
+    # now compute the entire train data set
+    knn = KNearestNeighbor(X, Y)
+    train_accuracy = classification_accuracy(knn, optimal_k, X, Y)
+    test_accuracy = classification_accuracy(knn, optimal_k, test_data, test_labels)
+    # avg_cross_fold is accuracy across 1- 16 fold for each cross_validation?
+    avg_cross_fold = np.sum(k_cross_accuracy_set)/16
+
+    print("train_accuracy is {}\ntest_accuracy is{}\navg_cross_fold is{}".
+          format(train_accuracy, test_accuracy, avg_cross_fold))
+
+
+
 def main():
     train_data, train_labels, test_data, test_labels = data.load_all_data('data')
     knn = KNearestNeighbor(train_data, train_labels)
 
     # Example usage:
     part_2_1_1(knn, train_data, train_labels, test_data, test_labels)
+
+    # part 2.1.3
+    part_2_1_3(train_data, train_labels, test_data, test_labels)
 
 
 if __name__ == '__main__':
