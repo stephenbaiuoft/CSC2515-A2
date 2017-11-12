@@ -151,7 +151,6 @@ def generative_likelihood_probability(digits, means, covariances):
 def conditional_likelihood(digits, means, covariances):
     '''
     Compute the conditional likelihood:
-
         log p(y|x, mu, Sigma)
 
     This should be a numpy array of shape (n, 10)

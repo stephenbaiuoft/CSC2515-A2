@@ -44,7 +44,11 @@ class KNearestNeighbor(object):
 
         You should return the digit label provided by the algorithm
         '''
-        digit = None
+
+        l2_ary = self.l2_distance(test_point)
+        k_indice = np.argpartition(l2_ary, k)[:k]
+        # bin_count to process train_labels -> get argmax index -> digit
+        digit = np.bincount(self.train_labels[k_indice].astype(int)).argmax()
         return digit
 
 def cross_validation(knn, k_range=np.arange(1,15)):
@@ -59,14 +63,35 @@ def classification_accuracy(knn, k, eval_data, eval_labels):
     Evaluate the classification accuracy of knn on the given 'eval_data'
     using the labels
     '''
-    pass
+    correct_count = 0
+    total_count = eval_data.shape[0]
+    for i in range(total_count):
+        predicted_label = knn.query_knn(eval_data[i], k)
+        if predicted_label == eval_labels[i]:
+            correct_count += 1
+
+    return correct_count/total_count
+
+
+def part_2_1_1(knn, train_data, train_labels, test_data, test_labels):
+    accuracy_train_1 = classification_accuracy(knn, 1, train_data, train_labels)
+    accuracy_train_15 = classification_accuracy(knn, 15, train_data, train_labels)
+
+    accuracy_test_1 = classification_accuracy(knn, 1, test_data, test_labels)
+    accuracy_test_15 = classification_accuracy(knn, 15, test_data, test_labels)
+
+    print("accuracy for Train with k = 1: {}, k = 15: {}".format(accuracy_train_1,
+                                                                 accuracy_train_15))
+    print("accuracy for Test with k = 1: {}, k = 15: {}".format(accuracy_test_1,
+                                                                 accuracy_test_15))
 
 def main():
     train_data, train_labels, test_data, test_labels = data.load_all_data('data')
     knn = KNearestNeighbor(train_data, train_labels)
 
     # Example usage:
-    predicted_label = knn.query_knn(test_data[0], 1)
+    part_2_1_1(knn, train_data, train_labels, test_data, test_labels)
+
 
 if __name__ == '__main__':
     main()
