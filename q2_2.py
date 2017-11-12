@@ -51,18 +51,26 @@ def compute_sigma_mles(train_data, train_labels):
         k_digits = data.get_digits_by_label(train_data, train_labels, i)
         k_count = k_digits.shape[0]
         k_mean = means[i]
-        d_set = (k_digits - k_mean)
 
-        covariance_matrix_i_sum = i_matrix
-        for d in d_set:
+        # d_set = (k_digits - k_mean)
+        covariance_matrix_i_sum = []
+        for d in k_digits:
             # d should be (64,) ==> to (64,1)
-            d = d.reshape(64, 1)
+            d_off = d - k_mean
+            d_off = d_off.reshape(64, 1)
             # covariance_d: (64,64)
-            covariance_d = np.dot(d, np.transpose(d))
+            covariance_d = np.dot(d_off, np.transpose(d_off))
+
             # print("covariance_d shape is: ", covariance_d.shape)
             # adding over all data points
-            covariance_matrix_i_sum += covariance_d
-        covariance_matrix_i = covariance_matrix_i_sum / k_count
+            covariance_matrix_i_sum.append(covariance_d)
+
+        covariance_matrix_i = np.sum(covariance_matrix_i_sum, axis=0)/k_count + i_matrix
+
+        # calculate 64 x 64 ==> debug and compare... diff by very little
+        cov_i = np.cov(np.transpose(k_digits))
+        cov_i_stable = cov_i + np.identity(64, dtype=float) * 0.01
+
         # add to set
         covariance_matrix_set.append(covariance_matrix_i)
 
@@ -216,11 +224,11 @@ def main():
     train_data, train_labels, test_data, test_labels = data.load_all_data('data')
 
     # Fit the model
-    means = compute_mean_mles(train_data, train_labels)
-    covariances = compute_sigma_mles(train_data, train_labels)
+    # means = compute_mean_mles(train_data, train_labels)
+    # covariances = compute_sigma_mles(train_data, train_labels)
 
     # Evaluation
-    # part_2_2_1(covariances)
+    #part_2_2_1(covariances)
 
 
     #2.2.2
