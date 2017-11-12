@@ -52,7 +52,8 @@ class KNearestNeighbor(object):
         digit = np.bincount(self.train_labels[k_indice].astype(int)).argmax()
         return digit
 
-def cross_validation(knn, k_range=np.arange(1,15)):
+
+def cross_validation(knn, k_range=np.arange(1, 16)):
     for k in k_range:
         # Loop over folds
         # Evaluate k-NN
