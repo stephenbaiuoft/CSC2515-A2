@@ -105,7 +105,7 @@ def part_2_1_3(X, Y, test_data, test_labels):
                 classification_accuracy(knn, i, x_test_set, y_test_set)
 
             cross_accuracy += test_accuracy
-            cross_accuracy /= 10
+        cross_accuracy /= 10
 
         # add to k_cross_accracy_Set
         k_cross_accuracy_set.append(cross_accuracy)

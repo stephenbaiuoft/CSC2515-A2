@@ -179,7 +179,12 @@ def avg_conditional_likelihood(digits, labels, means, covariances):
     for i in range(10):
         # get conditional likelihood n x 10
         # of each i and sum them up
-        tot_probability += np.sum(cond_log_likelihood[labels == i])
+        matching_index = labels == i
+        cond_log_likelihood_i = cond_log_likelihood[matching_index]
+
+        cond_log_likelihood_i_max = np.max(cond_log_likelihood_i, axis=1)
+        i_tot = np.sum(cond_log_likelihood_i_max)
+        tot_probability += i_tot
 
     # Compute as described above and return
     # over all digits
