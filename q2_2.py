@@ -192,7 +192,33 @@ def classify_data(digits, means, covariances):
     '''
     cond_likelihood = conditional_likelihood(digits, means, covariances)
     # Compute and return the most likely class
-    pass
+
+    posterior_class_prediction = np.argmax(cond_likelihood, axis=1)
+    return posterior_class_prediction
+
+
+def posterior_accuracy(digits, labels, means, covariances):
+    posterior_class_prediction = classify_data(digits, means, covariances)
+    correct_count = posterior_class_prediction[posterior_class_prediction == labels].shape[0]
+    accuracy = correct_count / digits.shape[0]
+    # print("posterior accuracy is: ", accuracy)
+    return accuracy
+
+
+def part_2_2_3(train_data, train_labels, test_data, test_labels):
+    train_means = compute_mean_mles(train_data, train_labels)
+    train_covariances = compute_sigma_mles(train_data, train_labels)
+
+    train_accuracy = \
+        posterior_accuracy(train_data, train_labels, train_means, train_covariances)
+    print("training accuracy is: ", train_accuracy)
+
+    test_means = compute_mean_mles(test_data, test_labels)
+    test_covariances = compute_sigma_mles(test_data, test_labels)
+
+    test_accuracy = \
+        posterior_accuracy(test_data, test_labels, test_means, test_covariances)
+    print("test accuracy is: ", test_accuracy)
 
 
 # draw cov_diagonal side by side
@@ -229,10 +255,11 @@ def main():
     # Evaluation
     #part_2_2_1(covariances)
 
-
-    #2.2.2
+    # 2.2.2
     part_2_2_2(train_data, train_labels, test_data, test_labels)
 
+    # 2.2.3
+    # part_2_2_3(train_data, train_labels, test_data, test_labels)
 
 if __name__ == '__main__':
     main()
