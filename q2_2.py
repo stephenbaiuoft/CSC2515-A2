@@ -182,8 +182,10 @@ def avg_conditional_likelihood(digits, labels, means, covariances):
         matching_index = labels == i
         cond_log_likelihood_i = cond_log_likelihood[matching_index]
 
-        cond_log_likelihood_i_max = np.max(cond_log_likelihood_i, axis=1)
-        i_tot = np.sum(cond_log_likelihood_i_max)
+        # take the ith_col
+        cond_log_likelihood_i_col = cond_log_likelihood_i[:, i]
+        i_tot = np.sum(cond_log_likelihood_i_col)
+
         tot_probability += i_tot
 
     # Compute as described above and return
@@ -237,6 +239,7 @@ def part_2_2_2(train_data, train_labels, test_data, test_labels):
 
     train_means = compute_mean_mles(train_data, train_labels)
     train_covariances = compute_sigma_mles(train_data, train_labels)
+
     train_avg_likelihood = avg_conditional_likelihood(digits=train_data, labels=train_labels,
                                                       means=train_means,
                                                       covariances=train_covariances)
@@ -264,7 +267,7 @@ def main():
     part_2_2_2(train_data, train_labels, test_data, test_labels)
 
     # 2.2.3
-    # part_2_2_3(train_data, train_labels, test_data, test_labels)
+    part_2_2_3(train_data, train_labels, test_data, test_labels)
 
 if __name__ == '__main__':
     main()

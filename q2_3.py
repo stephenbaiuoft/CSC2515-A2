@@ -144,10 +144,12 @@ def avg_conditional_likelihood(bin_digits, labels, eta):
         matching_index = labels == i
         cond_log_likelihood_i = cond_log_likelihood[matching_index]
 
-        cond_log_likelihood_i_max = np.max(cond_log_likelihood_i, axis=1)
-        i_tot = np.sum(cond_log_likelihood_i_max)
-        tot_probability += i_tot
+        # take the ith_col
+        cond_log_likelihood_i_col = cond_log_likelihood_i[:, i]
+        i_tot = np.sum(cond_log_likelihood_i_col)
 
+        tot_probability += i_tot
+    print("tot_probability: ", tot_probability)
     # Compute as described above and return
     # over all digits
     return tot_probability/bin_digits.shape[0]
