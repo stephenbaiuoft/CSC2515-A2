@@ -28,8 +28,9 @@ def compute_parameters(train_data, train_labels):
     for k in range(10):
         # count number of datums of the k class
         k_data = train_data[train_labels == k]
-
+        # based on derivation
         eta[k] = (np.sum(k_data, axis=0) + 1) / (k_data.shape[0] * 3)
+        #eta[k] = np.sum(k_data, axis=0)/(k_data.shape[0]*3) + 1/3
         print("the shape is: ", eta[k].shape)
 
     print("eta shape is: ", eta.shape)
@@ -58,13 +59,9 @@ def generate_new_data(eta):
     Plot these values
     '''
     generated_data = np.zeros((10, 64))
-    # bernoulli_rate = 0.9
-    bernoulli_rate = 0.5
-    s = np.random.binomial(1, bernoulli_rate, 64)
-    s_inverse = 1 - s
 
     for k in range(10):
-        data_k = np.power( eta[k], s) * np.power(1-eta[k], s_inverse)
+        data_k = np.random.binomial(1, eta[k])
         generated_data[k] = data_k
 
     plot_images(generated_data)
@@ -187,26 +184,26 @@ def main():
     # Evaluation 2.3.3
     # plot_images(eta)
 
-    # generate_new_data(eta)
+    generate_new_data(eta)
 
-    avg_cond_likelihood = avg_conditional_likelihood(train_data,
-                                                     train_labels, eta)
-
-    print("avg_cond_likelihood train is:{}, probability: {} ".format(avg_cond_likelihood,
-                                                 np.exp(avg_cond_likelihood)))
-
-    avg_cond_likelihood = avg_conditional_likelihood(test_data,
-                                                     test_labels, eta)
-
-    print("avg_cond_likelihood test is:{}, probability: {} ".format(avg_cond_likelihood,
-                                                       np.exp(avg_cond_likelihood)))
-
-    # test posterior class accuracy
-    train_posterior_accuracy = posterior_accuracy(train_data, train_labels, eta)
-    print("train posterior_accuracy is: ", train_posterior_accuracy)
-
-    test_posterior_accuracy = posterior_accuracy(test_data, test_labels, eta)
-    print("test posterior_accuracy is: ", test_posterior_accuracy)
+    # avg_cond_likelihood = avg_conditional_likelihood(train_data,
+    #                                                  train_labels, eta)
+    #
+    # print("avg_cond_likelihood train is:{}, probability: {} ".format(avg_cond_likelihood,
+    #                                              np.exp(avg_cond_likelihood)))
+    #
+    # avg_cond_likelihood = avg_conditional_likelihood(test_data,
+    #                                                  test_labels, eta)
+    #
+    # print("avg_cond_likelihood test is:{}, probability: {} ".format(avg_cond_likelihood,
+    #                                                    np.exp(avg_cond_likelihood)))
+    #
+    # # test posterior class accuracy
+    # train_posterior_accuracy = posterior_accuracy(train_data, train_labels, eta)
+    # print("train posterior_accuracy is: ", train_posterior_accuracy)
+    #
+    # test_posterior_accuracy = posterior_accuracy(test_data, test_labels, eta)
+    # print("test posterior_accuracy is: ", test_posterior_accuracy)
 
 
 if __name__ == '__main__':

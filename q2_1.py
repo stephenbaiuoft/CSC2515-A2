@@ -60,6 +60,7 @@ def cross_validation(knn, k_range=np.arange(1, 16)):
         # ...
         pass
 
+
 def classification_accuracy(knn, k, eval_data, eval_labels):
     '''
     Evaluate the classification accuracy of knn on the given 'eval_data'
@@ -87,10 +88,10 @@ def part_2_1_1(knn, train_data, train_labels, test_data, test_labels):
     print("accuracy for Test with k = 1: {}, k = 15: {}".format(accuracy_test_1,
                                                                  accuracy_test_15))
 
+
 # find the optimal k
 def part_2_1_3(X, Y, test_data, test_labels):
-    # 1 - 15
-    k_max = 16
+
     kf = KFold(n_splits=10)
 
     k_cross_accuracy_set = []
@@ -121,7 +122,7 @@ def part_2_1_3(X, Y, test_data, test_labels):
     train_accuracy = classification_accuracy(knn, optimal_k, X, Y)
     test_accuracy = classification_accuracy(knn, optimal_k, test_data, test_labels)
     # avg_cross_fold is accuracy across 1- 16 fold for each cross_validation?
-    avg_cross_fold = np.sum(k_cross_accuracy_set)/16
+    avg_cross_fold = k_cross_accuracy_set[optimal_k -1]
 
     print("train_accuracy is {}\ntest_accuracy is{}\navg_cross_fold is{}".
           format(train_accuracy, test_accuracy, avg_cross_fold))
@@ -133,7 +134,7 @@ def main():
     knn = KNearestNeighbor(train_data, train_labels)
 
     # Example usage:
-    part_2_1_1(knn, train_data, train_labels, test_data, test_labels)
+    # part_2_1_1(knn, train_data, train_labels, test_data, test_labels)
 
     # part 2.1.3
     part_2_1_3(train_data, train_labels, test_data, test_labels)
